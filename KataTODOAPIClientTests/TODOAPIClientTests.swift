@@ -44,7 +44,32 @@ class TODOAPIClientTests: NocillaTestCase {
         expect(result?.value?.count).toEventually(equal(200))
         assertTaskContainsExpectedValues(task: (result?.value?[0])!)
     }
-
+    
+    func testParsesTasksProperlyGettingEmptyTasks() {
+        stubRequest("GET", "http://jsonplaceholder.typicode.com/todos")
+            .andReturn(200)?
+            .withJsonBody(fromJsonFile("getEmptyTasksResponse"))
+        
+        var result: Result<[TaskDTO], TODOAPIClientError>?
+        apiClient.getAllTasks { response in
+            result = response
+        }
+        
+        expect(result?.value?.count).toEventually(equal(0))
+    }
+    
+    func testReturnsEmptyResponseWhenTheServerIsCrashing() {
+        stubRequest("GET", "http://jsonplaceholder.typicode.com/todos")
+            .andReturn(500)
+        
+        var result: Result<[TaskDTO], TODOAPIClientError>?
+        apiClient.getAllTasks { response in
+            result = response
+        }
+        
+        expect(result).toEventually(beNil())
+    }
+    
     func testReturnsNetworkErrorIfThereIsNoConnectionGettingAllTasks() {
         stubRequest("GET", "http://jsonplaceholder.typicode.com/todos")
             .andFailWithError(NSError.networkError())
@@ -56,6 +81,8 @@ class TODOAPIClientTests: NocillaTestCase {
 
         expect(result?.error).toEventually(equal(TODOAPIClientError.networkError))
     }
+    
+    //  
 
     private func assertTaskContainsExpectedValues(task: TaskDTO) {
         expect(task.id).to(equal("1"))

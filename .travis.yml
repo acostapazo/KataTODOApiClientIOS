@@ -3,4 +3,4 @@ osx_image: xcode10.1
 
 script:
     - pod install
-    - set -o pipefail && xcodebuild -workspace KataTODOApiClientIOS.xcworkspace -scheme 'KataTODOApiClientIOS' -destination 'platform=iOS Simulator,name=iPhone 6s Plus' build test CODE_SIGN_IDENTITY=- | xcpretty -c
+    - set -o pipefail && xcodebuild -workspace KataTODOAPIClient.xcworkspace -scheme 'KataTODOAPIClient' -destination 'platform=iOS Simulator,name=iPhone 6s Plus' build test CODE_SIGN_IDENTITY=- | xcpretty -c
